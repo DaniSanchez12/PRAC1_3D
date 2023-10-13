@@ -214,11 +214,7 @@ public class FPSController : MonoBehaviour
         {
             Shoot();
         }
-        if (Input.GetKey(m_ReloadKeyCode))
-        {
-            SetReloadAnimation();
-        }
-        if (Input.GetKey(m_ReloadKeyCode) && m_CurrentAmmo <= 0 && m_MaxAmmo > 0)
+        if (Input.GetKey(m_ReloadKeyCode) && m_CurrentAmmo < 30 && m_MaxAmmo > 0)
         {
             SetReloadAnimation();
             Reload();
