@@ -376,7 +376,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 683848291}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.527365, y: 0.62, z: 11.633217}
+  m_LocalPosition: {x: 13.82, y: 0.62, z: 10.14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -441,7 +441,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1439154692}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.752736, y: 1.02, z: 1.26}
+  m_LocalPosition: {x: 8.72, y: 1.02, z: 8.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -492,7 +492,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2147483647
   m_Score: 0
-  m_DecalPrefab: {fileID: 3722940115576126949, guid: 194e8281ec63f2e40b9c1228a8e7dd1e, type: 3}
+  m_DecalPrefab: {fileID: 4829899452272432789, guid: 592c506cbc3071d42b90a38f38560379, type: 3}
   m_Life: 0
   m_Shield: 0
   m_DroneDamage: 0
