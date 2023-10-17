@@ -45,7 +45,7 @@ public class ShootingGallery : MonoBehaviour
         {
             //m_TextMessage.outlineColor = new Color32(255, 145, 0, 255);
             m_TextMessage.outlineColor = Color.black;
-            m_TextMessage.outlineWidth = 0.4f;
+           // m_TextMessage.outlineWidth = 0.4f;
         }
 
         if (DetectCollision() && !m_Entered)
@@ -67,6 +67,16 @@ public class ShootingGallery : MonoBehaviour
             }
         }
     }
+    public void ActivateShootingGallery()
+    {
+        GameController.GetGameController().GetPlayer().ResetTime();
+        m_Message.gameObject.SetActive(false);
+
+        for (int i = 0; i < m_TargetList.Count; i++)
+        {
+            m_TargetList[i].GetComponent<Animation>().Play();
+        }
+    }
     void TimeUp()
     {
         if(GameController.GetGameController().GetPlayer().GetTime() <= 0)
@@ -85,6 +95,10 @@ public class ShootingGallery : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         m_NewMessageCanvas.gameObject.SetActive(false);
+    }
+    public static ShootingGallery GetShootingGallery()
+    {
+        return m_ShootingGallery;
     }
     void ShowMessage()
     {

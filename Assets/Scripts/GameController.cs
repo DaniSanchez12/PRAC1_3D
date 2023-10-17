@@ -20,15 +20,15 @@ public class GameController : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    static public GameController GetGameController()
+    public static GameController GetGameController()
     {
-        if(m_GameController=null)
+        if(m_GameController == null)
         {
             m_GameController = new GameObject("GameController").AddComponent<GameController>();
             GameControllerData l_GameControllerData = Resources.Load<GameControllerData>("GameControllerData");
-            m_GameController.m_PlayerLife = l_GameControllerData.m_Life;
+            m_GameController.m_PlayerLife = 3;
         }
-        return m_GameController;    
+        return m_GameController;
     }
 
     public FPSController GetPlayer()

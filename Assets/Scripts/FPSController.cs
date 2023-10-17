@@ -108,6 +108,7 @@ public class FPSController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         m_AimLocked = Cursor.lockState == CursorLockMode.Locked;
         m_Dead = false;
+        m_Time = m_MaxTime;
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         m_DecalsPool = new TCObjectPool(5, m_DecalPrefab);
@@ -173,6 +174,21 @@ public class FPSController : MonoBehaviour
         m_Camera.fieldOfView = l_FOV;
             
         UpdateUI();
+        if(Input.GetKeyDown(m_ShootingGalleryCode))
+        {
+            ShootingGallery.GetShootingGallery().ActivateShootingGallery();
+            m_TimerActive = true;
+        }
+
+        if(m_Time <= 0)
+        {
+            m_TimerActive=false;
+        }
+
+        if(m_TimerActive)
+        {
+            m_Time -= Time.deltaTime;
+        }
         l_Movement.Normalize();
         l_Movement*= l_Speed+Time.deltaTime;
         m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
