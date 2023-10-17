@@ -1,45 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
 
 public class GameController : MonoBehaviour
 {
+//el mio
     static GameController m_GameController=null;
-    public GameObject m_DestroyObject;
     public FPSController m_Player;
-    float m_PlayerLife;
-    float m_PlayerShield;
+    float m_PlayerLife = 1.0f;
+    public TMP_Text lifeText;
+    public TMP_Text shieldText;
+    public TMP_Text ammoText;
 
+    void Start()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     static public GameController GetGameController()
     {
         if(m_GameController=null)
         {
             m_GameController = new GameObject("GameController").AddComponent<GameController>();
-            GameControllerData l_GameControllerData = Resources.Load <GameControllerData>("GameControllerData");
-            m_GameController.m_PlayerLife = l_GameControllerData.m_lifes;
-            Debug.Log("Data loaded with life" + m_GameController.m_PlayerLife);
+            GameControllerData l_GameControllerData = Resources.Load<GameControllerData>("GameControllerData");
+            m_GameController.m_PlayerLife = l_GameControllerData.m_Life;
         }
         return m_GameController;    
     }
-    public void SetPLayerLife(float PlayerLife)
+
+    public FPSController GetPlayer()
+    {
+        return m_Player;
+    }
+
+    public void SetPlayer(FPSController Player)
+    {
+        m_Player = Player;
+    }
+
+    public static void DestroySingleton()
+    {
+        if(m_GameController != null)
+            GameObject.Destroy(m_GameController.gameObject);
+        m_GameController = null;
+    }
+
+    public void SetLife(float PlayerLife)
     {
         m_PlayerLife = PlayerLife;
     }
+
     public float GetPlayerLife()
     {
         return m_PlayerLife;
     }
-    public void SetPLayerShield(float PlayerShield)
+
+    public float GetShield()
     {
-        m_PlayerShield = PlayerShield;
+        return m_Player.GetShield();
     }
-    public float GetPlayerShield()
+
+    public float GetAmmo()
     {
-        return m_PlayerShield;
+        return m_Player.GetAmmo();
     }
-        public void SetPlayer(FPSController Player)
+
+    public void RestartGame()
     {
-        m_Player = Player;
+        m_Player.RestartGame();
     }
 }

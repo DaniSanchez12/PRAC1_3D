@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; 
+using TMPro;
+using static UnityEngine.GraphicsBuffer;
+using System;
 
 public class FPSController : MonoBehaviour
 {
@@ -9,44 +11,46 @@ public class FPSController : MonoBehaviour
 
     // Start is called before the first frame update el mio
 
-
+    //CONTROLES DE MOVIMIENTO
     float m_Yaw;
     float m_Pitch;
-
     public Transform m_pitchController;
     public float m_YawRotationSpeed;
     public float m_PitchRotationSpeed;
-
     public float m_MinPitch;
     public float m_MaxPitch;
-
     public bool m_YawInverted;
     public bool m_PitchInverted;
     bool m_OnGround = true;
 
-    public CharacterController m_CharacterController;
+    public TMP_Text lifeText;
+    public TMP_Text shieldText;
+    public TMP_Text ammoText;
 
+    //CARACTERISTICAS DEL PLAYER
+    public CharacterController m_CharacterController;
     public float m_Speed;
     float m_SprintSpeed;
     public float m_FastSpeedMultiplier = 1.5f;
     public float m_JumpSpeed;
     float m_VerticalSpeed = 0.0f;
+    Vector3 m_StartPosition;
+    Quaternion m_StartRotation;
+    public Camera m_Camera;
+    public float m_NormalMovementFOV = 60;
+    public float m_RunMovementFOV = 70;
+    public bool m_Dead;
 
+    //BLOQUEAR CAMARA
     public KeyCode m_DebugLockAngleKeyCode = KeyCode.I;
     public KeyCode m_DebugLockKeyCode = KeyCode.O;
     bool m_AngleLocked = false;
     bool m_AimLocked = true;
 
-    Vector3 m_StartPosition;
-    Quaternion m_StartRotation;
-    
-    public Camera m_Camera;
-    public float m_NormalMovementFOV = 60;
-    public float m_RunMovementFOV = 70;
-
-    public Text scoreText;
-    public Text lifeText;
-    public Text shieldText;
+    private ShootingGallery m_Gallery;
+    private float m_Time;
+    private float m_MaxTime = 30;
+    private bool m_TimerActive = false;
 
 
     [Header("Inputs")]
@@ -57,11 +61,12 @@ public class FPSController : MonoBehaviour
     public KeyCode m_SprintKeyCode = KeyCode.LeftShift;
     public KeyCode m_JumpKeyCode = KeyCode.Space;
     public KeyCode m_ReloadKeyCode = KeyCode.R;
+    public KeyCode m_ShootingGalleryCode = KeyCode.L;
+
 
     [Header("Shoot")]
     public float m_MaxShootDistance = 50.0f;
     public LayerMask m_ShootingLayerMask;
-    public int m_Score;
     bool CanShoot = true;
     public GameObject m_DecalPrefab;
     TCObjectPool m_DecalsPool;
@@ -96,13 +101,17 @@ public class FPSController : MonoBehaviour
 
     void Start()
     {
-        
-        //m_Life = GameController.GetGameController().GetPlayerLife();
+        m_Life = GameController.GetGameController().GetPlayerLife();
+        GameController.GetGameController().SetPlayer(this);
         m_MaxLife = m_Life;
+        m_MaxShield = m_Shield;
+        Cursor.lockState = CursorLockMode.Locked;
         m_AimLocked = Cursor.lockState == CursorLockMode.Locked;
+        m_Dead = false;
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         m_DecalsPool = new TCObjectPool(5, m_DecalPrefab);
+        m_CurrentHealth = m_MaxLife;
         SetIdleWeaponAnimation();
     }
 #if UNITY_EDITOR
@@ -130,35 +139,17 @@ public class FPSController : MonoBehaviour
         float l_HorizontalMovement = Input.GetAxis("Mouse X");
         float l_VerticalMovement = Input.GetAxis("Mouse Y");
         float l_Speed =m_Speed;
-
-        //scoreText.text = "Score: " + m_Score.ToString();
-        //lifeText.text = "Life: " + m_Life.ToString("F1"); // Muestra un decimal en la vida
-        //shieldText.text = "Shield: " + m_Shield.ToString("F1"); // Muestra un decimal en el escudo
-
-
-        if (Input.GetKeyDown(m_JumpKeyCode) && m_OnGround)
-            m_VerticalSpeed = m_JumpSpeed;
-        float l_FOV = m_NormalMovementFOV;
-
-        if(Input.GetKey(m_SprintKeyCode))
-        {
-            l_Speed = m_Speed * m_FastSpeedMultiplier;
-            l_FOV = m_RunMovementFOV;
-        }
-        m_Camera.fieldOfView = l_FOV;
-
         float l_YawInverted=m_YawInverted ? -1.0f : 1.0f;
         float l_PitchInverted=m_PitchInverted ? -1.0f : 1.0f;
-
 
         float l_YawInRadians = m_Yaw*Mathf.Deg2Rad;
         float l_Yaw90InRadians = (m_Yaw + 90.0f)*Mathf.Deg2Rad;
 
-        Vector3 l_Forward = new Vector3 (Mathf.Sin(l_YawInRadians),0.0f, Mathf.Cos(l_YawInRadians));    //calculos de vectores de movimiento
+        //calculos de vectores de movimiento
+        Vector3 l_Forward = new Vector3 (Mathf.Sin(l_YawInRadians),0.0f, Mathf.Cos(l_YawInRadians));    
         Vector3 l_Right = new Vector3 (Mathf.Sin(l_Yaw90InRadians),0.0f, Mathf.Cos(l_Yaw90InRadians));
 
         Vector3 l_Movement = Vector3.zero; // inicializacion
-
         if(Input.GetKey(m_LeftKeyCode))
             l_Movement =-l_Right;
         else if(Input.GetKey(m_RightKeyKeyCode))
@@ -170,8 +161,18 @@ public class FPSController : MonoBehaviour
         {
         l_Movement-=l_Forward;
         }
-            
+        if (Input.GetKeyDown(m_JumpKeyCode) && m_OnGround)
+            m_VerticalSpeed = m_JumpSpeed;
+        float l_FOV = m_NormalMovementFOV;
 
+        if(Input.GetKey(m_SprintKeyCode))
+        {
+            l_Speed = m_Speed * m_FastSpeedMultiplier;
+            l_FOV = m_RunMovementFOV;
+        }
+        m_Camera.fieldOfView = l_FOV;
+            
+        UpdateUI();
         l_Movement.Normalize();
         l_Movement*= l_Speed+Time.deltaTime;
         m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
@@ -219,7 +220,7 @@ public class FPSController : MonoBehaviour
             SetReloadAnimation();
             Reload();
         }
-    }
+}
     void Shoot()
     {
         Ray l_ray = m_Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f));
@@ -229,14 +230,13 @@ public class FPSController : MonoBehaviour
             CreateShootHitParticles(l_RaycastHit.collider, l_RaycastHit.point, l_RaycastHit.normal);
             if (l_RaycastHit.collider.tag == "Target")
         {
-            m_Score += 25; // Aumenta el puntaje en 25 al impactar en "Target"
+            
         }
         else if (l_RaycastHit.collider.tag == "SmallTarget")
         {
-            m_Score += 50; // Aumenta el puntaje en 50 al impactar en "SmallTarget"
+           
         }
         
-        Debug.Log("Puntaje actual: " + m_Score);
         }
         SetShootWeaponAnimation();
         m_TimesShot++;
@@ -260,6 +260,17 @@ public class FPSController : MonoBehaviour
         yield return new WaitForSeconds(m_ReloadAnimationClip.length);
         CanShoot = true;
     }
+    void UpdateUI()
+{
+    if (lifeText != null)
+        lifeText.text = "Life: " + m_Life.ToString("0");
+
+    if (shieldText != null)
+        shieldText.text = "Shield: " + m_Shield.ToString("0");
+
+    if (ammoText != null)
+        ammoText.text = "Ammo: " + m_CurrentAmmo + " / " + m_MaxAmmo;
+}
 
     private void CreateShootHitParticles(Collider _Collider, Vector3 Position, Vector3 Normal)
     {
@@ -306,6 +317,10 @@ public class FPSController : MonoBehaviour
     {
         return m_Life;
     }
+    public float GetTime()
+    {
+        return m_Time;
+    }
     public float GetShield()
     {
         return m_Shield;
@@ -314,10 +329,53 @@ public class FPSController : MonoBehaviour
     {
         m_Life = Mathf.Clamp(m_Life + Life, 0.0f, m_MaxLife);
     }
+    public void AddShield(float Shield)
+    {
+        if(m_CurrentShield < 100)
+        {
+            m_CurrentShield += Shield;
+            if(m_CurrentShield > 100) { m_CurrentShield = m_MaxShield; }
+        }
+    }
+    public void RecieveDamage(float Damage)
+    {
+        if (m_CurrentShield >= 0)
+        {
+            m_Life -= Damage * 0.25f;
+            m_CurrentShield -= Damage * 0.75f;
+        }
+        else
+        {
+            m_CurrentShield = 0;
+            m_Life -= Damage;
+        }
 
+        if (m_Life <= 0)
+        {
+            Kill();
+        }
+    }
+     void Kill()
+    {
+        m_Life = 0;
+        GameController.GetGameController().RestartGame();
+    }
+        public void ResetTime()
+    {
+        m_Time = m_MaxTime;
+    }
+    public void RestartGame()
+    {
+        m_Life = 100;
+        m_CurrentShield = 100;
+        m_CharacterController.enabled = false;
+        transform.position = m_StartPosition;
+        transform.rotation = m_StartRotation;
+        m_CharacterController.enabled = true;
+        m_Dead = false;
+    }
     IEnumerator EndShoot()
     {
         yield return new WaitForSeconds(m_ShootAnimationClip.length);
     }
-
 }
