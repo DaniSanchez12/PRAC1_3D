@@ -179,16 +179,15 @@ public class FPSController : MonoBehaviour
             ShootingGallery.GetShootingGallery().ActivateShootingGallery();
             m_TimerActive = true;
         }
-
         if(m_Time <= 0)
         {
             m_TimerActive=false;
         }
-
         if(m_TimerActive)
         {
             m_Time -= Time.deltaTime;
         }
+
         l_Movement.Normalize();
         l_Movement*= l_Speed+Time.deltaTime;
         m_VerticalSpeed = m_VerticalSpeed + Physics.gravity.y * Time.deltaTime;
