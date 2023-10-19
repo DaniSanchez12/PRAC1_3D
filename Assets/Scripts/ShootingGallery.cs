@@ -57,7 +57,7 @@ public class ShootingGallery : MonoBehaviour
                 ShowMessage();
             }
         }   
-        if(PlayerManager.instance.m_Score >= 1000 && !m_Scored)
+        if(PlayerManager.instance.m_Score >= 500 && !m_Scored)
         {
             m_Scored = true;
             if (m_Scored)
@@ -103,6 +103,7 @@ public class ShootingGallery : MonoBehaviour
     void ShowMessage()
     {
         m_TimerText.gameObject.SetActive(true);
+        m_Score.gameObject.SetActive(true);
         m_Message.gameObject.SetActive(true);
     }
 }

@@ -23,9 +23,11 @@ public class FPSController : MonoBehaviour
     public bool m_PitchInverted;
     bool m_OnGround = true;
 
+    //HUD DEL PLAYER
     public TMP_Text lifeText;
     public TMP_Text shieldText;
     public TMP_Text ammoText;
+    public TMP_Text newMessage;
 
     //CARACTERISTICAS DEL PLAYER
     public CharacterController m_CharacterController;
@@ -245,13 +247,13 @@ public class FPSController : MonoBehaviour
             CreateShootHitParticles(l_RaycastHit.collider, l_RaycastHit.point, l_RaycastHit.normal);
             if (l_RaycastHit.collider.tag == "Target")
         {
-            
+            PlayerManager.instance.m_Score += 20;
         }
         else if (l_RaycastHit.collider.tag == "SmallTarget")
         {
            
         }
-        
+
         }
         SetShootWeaponAnimation();
         m_TimesShot++;

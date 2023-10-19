@@ -10,14 +10,16 @@ public class GameController : MonoBehaviour
 //el mio
     static GameController m_GameController=null;
     public FPSController m_Player;
+    float m_PlayerShield;
     float m_PlayerLife = 1.0f;
-    public TMP_Text lifeText;
+    //public TMP_Text lifeText;
     public TMP_Text shieldText;
     public TMP_Text ammoText;
 
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
+        Debug.Log("estoy vivo");
     }
 
     public static GameController GetGameController()
@@ -26,7 +28,7 @@ public class GameController : MonoBehaviour
         {
             m_GameController = new GameObject("GameController").AddComponent<GameController>();
             GameControllerData l_GameControllerData = Resources.Load<GameControllerData>("GameControllerData");
-            m_GameController.m_PlayerLife = 3;
+            m_GameController.m_PlayerLife = 100;
         }
         return m_GameController;
     }
@@ -44,13 +46,19 @@ public class GameController : MonoBehaviour
     public static void DestroySingleton()
     {
         if(m_GameController != null)
+        {
             GameObject.Destroy(m_GameController.gameObject);
+        }
         m_GameController = null;
     }
 
-    public void SetLife(float PlayerLife)
+    public void SetPLayerLife(float PlayerLife)
     {
         m_PlayerLife = PlayerLife;
+    }
+    public void SetPLayerShield(float PlayerShield)
+    {
+        m_PlayerShield = PlayerShield;
     }
 
     public float GetPlayerLife()

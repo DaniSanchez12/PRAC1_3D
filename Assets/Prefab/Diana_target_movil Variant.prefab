@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4831855380154696108, guid: c131c80439dbad8409ccfaf8188c687d, type: 3}
       propertyPath: m_Name
-      value: Diana_target_movil
+      value: Diana_target_movil Variant
       objectReference: {fileID: 0}
     - target: {fileID: 4831855380154696109, guid: c131c80439dbad8409ccfaf8188c687d, type: 3}
       propertyPath: m_RootOrder
